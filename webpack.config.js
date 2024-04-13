@@ -2,13 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'development',
     devtool: false,
     context: path.resolve(__dirname),
     entry: {
-        app: path.resolve(__dirname, 'src/main.ts'),
+        index: ["./src/main.ts", "./src/index.css"]
     },
     stats: 'normal',
     output: {
@@ -21,6 +22,22 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+                test: /\.(css)$/,
+                exclude: /\/node_modules\//,
+                oneOf: [
+                    {
+                        resourceQuery: {
+                            not: [/\?ngResource/]
+                        },
+                        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"]
+                    },
+                    {
+                        type: "asset/source",
+                        loader: "postcss-loader"
+                    }
+                ]
+            },
             {
                 test: /\.?(svg|html)$/,
                 resourceQuery: /\?ngResource/,
@@ -54,6 +71,9 @@ module.exports = {
         ]
     },
     plugins: [
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+        }),
         new AngularWebpackPlugin({
             tsconfig: path.resolve(__dirname, "tsconfig.json"),
             jitMode: false,
