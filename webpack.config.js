@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
 module.exports = {
     mode: 'development',
@@ -21,26 +22,56 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(js|ts)$/,
-                loader: 'ts-loader',
-                exclude: /node_modules/
+                test: /\.?(svg|html)$/,
+                resourceQuery: /\?ngResource/,
+                type: "asset/source"
+            },
+            {
+                test: /\.[cm]?[tj]sx?$/,
+                exclude: /\/node_modules\//,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            cacheDirectory: true,
+                            compact: true,
+                            plugins: ["@angular/compiler-cli/linker/babel"],
+                        },
+                    },
+                    {
+                        loader: "@angular-devkit/build-angular/src/tools/babel/webpack-loader",
+                        options: {
+                            aot: true,
+                            optimize: true,
+                            // scriptTarget: 7
+                        }
+                    },
+                    {
+                        loader: '@ngtools/webpack',
+                    },
+                ],
             },
         ]
     },
     plugins: [
+        new AngularWebpackPlugin({
+            tsconfig: path.resolve(__dirname, "tsconfig.json"),
+            jitMode: false,
+            directTemplateLoading: true
+        }),
       new HtmlWebpackPlugin({
           filename: path.resolve(__dirname, "dist", "index.html"),
           template: path.resolve(__dirname, "src/index.html")
       }),
-      new CopyPlugin({
-        patterns: [
-            {
-                from: "**/*.html",
-                to: path.resolve(__dirname, "dist", "[name].html"),
-                context: "src/app/"
-            }
-        ]
-      })
+      // new CopyPlugin({
+      //   patterns: [
+      //       {
+      //           from: "**/*.html",
+      //           to: path.resolve(__dirname, "dist", "[name].html"),
+      //           context: "src/app/"
+      //       }
+      //   ]
+      // })
     ],
     optimization: {
       runtimeChunk: 'single',
