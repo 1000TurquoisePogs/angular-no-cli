@@ -5,7 +5,8 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "webpack",
-    "serve": "webpack serve"
+    "serve": "webpack serve",
+    "build:plugin": "webpack -c webpack.plugin.config.js"
   },
   "keywords": [],
   "author": "",

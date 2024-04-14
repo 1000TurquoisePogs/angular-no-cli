@@ -9,7 +9,7 @@ export class AppComponent {
     title = 'Angular no CLI';
     
     async load(): Promise<void> {
-        const path = '/my-library.mjs';
+        const path = './plugin/app.js';
         const module = await import(/* webpackIgnore: true */ path);
         console.log(`module`, module);
     }
